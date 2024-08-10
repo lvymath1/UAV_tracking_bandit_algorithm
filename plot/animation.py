@@ -1,19 +1,19 @@
 from matplotlib import pyplot as plt, animation, rcParams
 import matplotlib.patches as patches
 
-# 设置字体为英文字体（如 Arial）
+# Set font to an English font (e.g., Arial)
 rcParams['font.family'] = 'Arial'
 
-def animation_video(target_positions, uav_positions, uav_orientations):
-    # 计算最小帧数
+def animation_video(target_positions, uav_positions, uav_orientations, mode):
+    # Calculate the minimum number of frames
     num_frames = min(len(target_positions), len(uav_positions))
 
     fig, ax = plt.subplots(figsize=(10, 8))
     ax.set_xlim(0, 10000)
     ax.set_ylim(0, 10000)
     target_line, = ax.plot([], [], 'r-', label='Target Trajectory')
-    drone_line, = ax.plot([], [], 'b--', label='Drone Trajectory')
-    drone_dot, = ax.plot([], [], 'bo', label='Drone Position')
+    drone_line, = ax.plot([], [], 'b--', label='UAV Trajectory')
+    drone_dot, = ax.plot([], [], 'bo', label='UAV Position')
     target_dot, = ax.plot([], [], 'ro', label='Target Position')
 
     # Create orientation arrows
@@ -59,15 +59,24 @@ def animation_video(target_positions, uav_positions, uav_orientations):
     ani = animation.FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, interval=20)
 
     # Save animation as video file
-    ani.save('experimental_video/UAV_tracking.mp4', writer='ffmpeg', fps=20)
+    if mode == 'tracking':
+        ani.save('experimental_video/UAV_tracking' + '_tracking_setting.mp4', writer='ffmpeg', fps=20)
+    elif mode == 'adversarial':
+        ani.save('experimental_video/UAV_tracking' + '_adversarial_setting.mp4', writer='ffmpeg', fps=20)
 
     # Show final result plot
     plt.xlabel('X Axis')
     plt.ylabel('Y Axis')
-    plt.title('UAV Tracking Target Trajectory')
+    if mode == 'tracking':
+        plt.title('UAV Tracking Target Trajectory' + ' (tracking setting)')
+    elif mode == 'adversarial':
+        plt.title('UAV Tracking Target Trajectory' + ' (adversarial setting)')
     plt.grid(True)
 
     # Save the final frame as an image
-    final_frame_image = 'experimental_video/final_frame.jpg'
-    plt.savefig(final_frame_image)
+    if mode == 'tracking':
+        final_frame_image = 'experimental_video/final_frame' + '_tracking_setting.jpg'
+    elif mode == 'adversarial':
+        final_frame_image = 'experimental_video/final_frame' + '_adversarial_setting.jpg'
 
+    plt.savefig(final_frame_image)

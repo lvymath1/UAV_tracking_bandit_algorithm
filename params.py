@@ -5,4 +5,4 @@ min_dist, max_dist = 2000, 4000
 step_size = 28.0
 
 # 调整帧数
-frame_num = 1000
+frame_num = 2000

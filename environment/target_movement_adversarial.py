@@ -1,11 +1,9 @@
-# target_movement.py
-
 import random
 import numpy as np
 from params import step_size
 
 def get_farthest_direction(target_position, uav_position):
-    """计算目标远离无人机的最佳方向"""
+    """Calculate the direction for the target to move farthest away from the UAV."""
     potential_moves = {
         'up': np.array([0, step_size]),
         'down': np.array([0, -step_size]),
@@ -25,7 +23,7 @@ def get_farthest_direction(target_position, uav_position):
     return farthest_direction
 
 def check_boundary_and_adjust(target_position):
-    """检查边界并调整方向"""
+    """Check the boundaries and adjust the direction if necessary."""
     x, y = target_position
     if x < 1000:
         return 'right'
@@ -38,14 +36,14 @@ def check_boundary_and_adjust(target_position):
     else:
         return None
 
-def adversarial_movement(lock_steps, target_position, uav_position, adversarial_direction):
+def adversarial_movement(adversarial_direction, lock_steps, target_position, uav_position):
     if lock_steps <= 0:
-        # 重新选择对抗方向
+        # Re-select the adversarial direction
         if np.random.rand() < 0.5:
             adversarial_direction = get_farthest_direction(target_position, uav_position)
         else:
             adversarial_direction = np.random.choice(['up', 'down', 'left', 'right'])
-        # 锁定对抗方向几时间步
+        # Lock the adversarial direction for a number of steps
         lock_steps = random.randint(10, 30)
     else:
         lock_steps -= 1
@@ -55,7 +53,7 @@ def adversarial_movement(lock_steps, target_position, uav_position, adversarial_
         adversarial_direction = boundary_direction
         lock_steps = random.randint(10, 50)
 
-        # 根据锁定的对抗方向移动目标
+    # Move the target based on the locked adversarial direction
     if adversarial_direction == 'up':
         target_position[1] += step_size
     elif adversarial_direction == 'down':
@@ -66,4 +64,4 @@ def adversarial_movement(lock_steps, target_position, uav_position, adversarial_
         target_position[0] += step_size
     target_position = np.clip(target_position, 0, 10000)
 
-    return adversarial_direction, target_position, lock_steps
+    return adversarial_direction, lock_steps, target_position
