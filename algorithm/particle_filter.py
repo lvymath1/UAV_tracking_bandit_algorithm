@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class ParticleFilter:
     def __init__(self, num_particles, uav_position, uav_orientation):
         self.num_particles = num_particles
@@ -11,8 +12,8 @@ class ParticleFilter:
     def predict(self):  # 适当减少噪声
         self.particles += self.noise
 
-    def update(self, target_position):
-        distances = np.linalg.norm(self.particles - target_position, axis=1)
+    def update(self, target):
+        distances = np.linalg.norm(self.particles - target.target_position, axis=1)
         self.weights = np.exp(-distances)
         self.weights += 1.e-300
         self.weights /= np.sum(self.weights)
@@ -26,35 +27,22 @@ class ParticleFilter:
     def estimate(self):
         return np.average(self.particles, weights=self.weights, axis=0)
 
-def is_target_in_view(target_position, uav_position, uav_orientation):
-    difference = target_position - uav_position
-    if uav_orientation == 0:  # Up
-        return (difference[1] > 0) and (abs(difference[0]) <= 800) and (difference[1] <= 1000)
-    elif uav_orientation == 1:  # Right
-        return (difference[0] > 0) and (abs(difference[1]) <= 800) and (difference[0] <= 1000)
-    elif uav_orientation == 2:  # Down
-        return (difference[1] < 0) and (abs(difference[0]) <= 800) and (abs(difference[1]) <= 1000)
-    elif uav_orientation == 3:  # Left
-        return (difference[0] < 0) and (abs(difference[1]) <= 800) and (abs(difference[0]) <= 1000)
-    else:
-        return False
+    def particle_filter(self, target, uav):
+        self.predict()
+        self.update(target)
+        self.resample()
+        estimated_target_position = self.estimate()
 
-def particle_filter(target_position, uav_position, uav_orientation, pf):
-    pf.predict()
-    pf.update(target_position)
-    pf.resample()
-    estimated_target_position = pf.estimate()
+        difference = estimated_target_position - uav.uav_position
 
-    difference = estimated_target_position - uav_position
+        if target.is_target_in_view(target, uav):
+            probs = np.array([max(0, difference[1]), max(0, -difference[1]),
+                              max(0, -difference[0]), max(0, difference[0])])
+            probs = probs / probs.sum()
+        else:
+            direction_probs = np.array([0.5, 0.5, 0.5, 0.5])
+            direction_probs[uav.uav_orientation] += 1.0
+            direction_probs /= direction_probs.sum()
+            return direction_probs
 
-    if is_target_in_view(estimated_target_position, uav_position, uav_orientation):
-        probs = np.array([max(0, difference[1]), max(0, -difference[1]),
-                          max(0, -difference[0]), max(0, difference[0])])
-        probs = probs / probs.sum()
-    else:
-        direction_probs = np.array([0.5, 0.5, 0.5, 0.5])
-        direction_probs[uav_orientation] += 1.0
-        direction_probs /= direction_probs.sum()
-        return direction_probs
-
-    return probs
+        return probs

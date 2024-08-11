@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from algorithm.particle_filter import is_target_in_view
 
 class Exp4IX:
     def __init__(self, n, k, M, delta):
@@ -23,46 +22,22 @@ class Exp4IX:
         self.S = np.zeros(M)  # Initialize cumulative rewards S_0
 
     def get_probs(self, E_t):
-        """
-        Get the action probabilities based on current expert advice.
-
-        :param E_t: Expert advice matrix of shape (k, M).
-        :return: Action probability distribution P_t of shape (k,).
-        """
         P_t = np.dot(E_t.T, self.Q)
         return P_t
 
-    def reward(self, uav_position, uav_orientation, target_position):
-        """
-        Compute the reward based on the UAV's position, orientation, and the target's position.
+    def reward(self, uav, target):
+        difference = target.target_position - uav.uav_position
 
-        :param uav_position: The current position of the UAV.
-        :param uav_orientation: The current orientation of the UAV.
-        :param target_position: The position of the target.
-        :return: Reward value, where a higher value indicates the target is within view.
-        """
-        difference = target_position - uav_position
-
-        if is_target_in_view(target_position, uav_position, uav_orientation):
+        if target.is_target_in_view(target, uav):
             return 1 / np.linalg.norm(difference)
         return 0
 
-    def update(self, E_t, uav_position, uav_orientation, target_position, A_t):
-        """
-        Update the Exp4-IX algorithm based on the expert advice, UAV position, orientation, and action taken.
-
-        :param E_t: Expert advice matrix for the current round.
-        :param uav_position: The current position of the UAV.
-        :param uav_orientation: The current orientation of the UAV.
-        :param target_position: The position of the target.
-        :param A_t: The action taken by the UAV.
-        :return: None. Updates the internal state of the algorithm.
-        """
+    def update(self, uav, target, E_t):
 
         P_t = self.get_probs(E_t)
-        A_t = np.random.choice(self.k, p=P_t)
+        A_t = uav.uav_orientation
 
-        Y_t = 1 - self.reward(uav_position, uav_orientation, target_position)
+        Y_t = 1 - self.reward(uav, target)
         reward_vector = np.ones(self.k)
         reward_vector[A_t] = Y_t
         hat_Y_t = reward_vector / (P_t + self.gamma)
