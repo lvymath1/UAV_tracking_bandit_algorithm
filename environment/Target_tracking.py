@@ -95,3 +95,7 @@ class Target_tracking:
             return (difference[0] < 0) and (abs(difference[1]) <= 800) and (abs(difference[0]) <= 1000)
         else:
             return False
+
+    def reset(self):
+        self.target_position = self.target_positions[0]
+        self.epoch = 0

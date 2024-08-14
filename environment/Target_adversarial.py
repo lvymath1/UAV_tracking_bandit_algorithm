@@ -17,6 +17,7 @@ def generate_first_control_point_near(uav_position):
 class Target_adversarial:
     def __init__(self, uav_position):
         self.target_position = generate_first_control_point_near(uav_position)
+        self.target_first_position = self.target_position
         self.target_positions = [self.target_position.copy()]
         self.lock_steps = 0  # Number of times the direction is locked
         self.adversarial_direction = 'up'
@@ -84,6 +85,12 @@ class Target_adversarial:
         self.target_position = np.clip(self.target_position, 0, 10000)
         self.target_positions.append(self.target_position.copy())
         return
+
+    def reset(self):
+        self.target_position = self.target_first_position
+        self.target_positions = [self.target_position.copy()]
+        self.lock_steps = 0  # Number of times the direction is locked
+        self.adversarial_direction = 'up'
 
     def is_target_in_view(self, target, uav):
         difference = target.target_position - uav.uav_position

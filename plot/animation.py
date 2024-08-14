@@ -2,34 +2,25 @@ import numpy as np
 from matplotlib import pyplot as plt, animation, rcParams
 import matplotlib.patches as patches
 
+from params import animation_dpi
+
 # Set font to an English font (e.g., Arial)
 rcParams['font.family'] = 'Arial'
 
-def animation_video(target, uav, mode):
-    uav_positions = np.array(uav.uav_positions)
-    uav_orientations = np.array(uav.uav_orientations)
-    target_positions = np.array(target.target_positions)
+def animation_video(target, uav, mode, algorithm, dpi=animation_dpi):
+    uav_positions = np.array(uav.uav_positions) / 100  # Convert to km
+    target_positions = np.array(target.target_positions) / 100  # Convert to km
 
     # Calculate the minimum number of frames
     num_frames = min(len(target_positions), len(uav_positions))
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.set_xlim(0, 10000)
-    ax.set_ylim(0, 10000)
+    fig, ax = plt.subplots(figsize=(10, 8), dpi=dpi)  # Use dpi parameter for resolution
+    ax.set_xlim(0, 100)  # Adjusted for km
+    ax.set_ylim(0, 100)  # Adjusted for km
     target_line, = ax.plot([], [], 'r-', label='Target Trajectory')
     uav_line, = ax.plot([], [], 'b--', label='UAV Trajectory')
     uav_dot, = ax.plot([], [], 'bo', label='UAV Position')
     target_dot, = ax.plot([], [], 'ro', label='Target Position')
-
-    # Create orientation arrows
-    orientation_arrows = {
-        0: ('green', 0, 1),  # Up
-        1: ('blue', 1, 0),  # Right
-        2: ('red', 0, -1),  # Down
-        3: ('magenta', -1, 0)  # Left
-    }
-
-    arrow_size = 10
 
     def init():
         target_line.set_data([], [])
@@ -37,8 +28,8 @@ def animation_video(target, uav, mode):
         uav_dot.set_data([], [])
         target_dot.set_data([], [])
 
-        # Set the legend in the init function
-        ax.legend()
+        # Set the legend in the init function with larger font size
+        ax.legend(fontsize=14)
 
         return target_line, uav_line, uav_dot, target_dot
 
@@ -52,25 +43,23 @@ def animation_video(target, uav, mode):
         for artist in reversed(ax.patches):
             artist.remove()
 
-        # Add new orientation arrow
-        x0, y0 = uav_positions[frame]
-        color, dx, dy = orientation_arrows[uav_orientations[frame]]
-        arrow = patches.FancyArrow(x0, y0, dx * arrow_size, dy * arrow_size,
-                                   color=color, width=2, head_width=5, head_length=8)
-        ax.add_patch(arrow)
-
         return target_line, uav_line, uav_dot, target_dot
 
     ani = animation.FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, interval=20)
 
     # Save animation as video file
-    ani.save('experimental_video/UAV_tracking' + '_' + mode + '_setting.mp4', writer='ffmpeg', fps=20)
+    ani.save(f'experimental_video/UAV_tracking_{mode}_{algorithm}_setting.mp4', writer='ffmpeg', fps=20)
+    print(f'experimental_video/UAV_tracking_{mode}_{algorithm}_setting.mp4')
 
-    # Show final result plot
-    plt.xlabel('X Axis')
-    plt.ylabel('Y Axis')
-    plt.title('UAV Tracking Target Trajectory' + ' (' + mode + ' setting)')
+    # Show final result plot with larger font sizes
+    plt.xlabel('X Axis (km)', fontsize=24)
+    plt.ylabel('Y Axis (km)', fontsize=24)
+    plt.title(f'UAV Tracking Target Trajectory', fontsize=28)
     plt.grid(True)
 
-    final_frame_image = 'experimental_video/final_frame' + '_' + mode + '_setting.jpg'
-    plt.savefig(final_frame_image)
+    # Adjust tick label sizes
+    ax.tick_params(axis='both', which='major', labelsize=20)
+
+    final_frame_image = f'experimental_pic/final_frame_{mode}_{algorithm}_setting.jpg'
+    plt.savefig(final_frame_image, dpi=dpi)  # Save with the specified dpi
+    print(f"Final frame image saved as {final_frame_image}")

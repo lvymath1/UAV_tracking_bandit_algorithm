@@ -6,7 +6,9 @@ from params import step_size
 class UAV():
     def __init__(self):
         self.uav_position = np.random.uniform(2000, 8000, size=(2,))
+        self.first_uav_positions = self.uav_position
         self.uav_orientation = np.random.choice([0, 1, 2, 3])
+        self.first_uav_orientation = self.uav_orientation
         self.uav_positions = [self.uav_position.copy()]
         self.uav_orientations = [self.uav_orientation]
         self.view_target_trajectory = []
@@ -38,3 +40,10 @@ class UAV():
 
         self.uav_positions.append(self.uav_position.copy())
         self.uav_orientations.append(self.uav_orientation)
+
+    def reset(self):
+        self.uav_position = self.first_uav_positions
+        self.uav_orientation = self.first_uav_orientation
+        self.uav_positions = [self.uav_position.copy()]
+        self.uav_orientations = [self.uav_orientation]
+        self.view_target_trajectory = []

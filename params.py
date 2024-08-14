@@ -6,3 +6,6 @@ step_size = 28.0
 
 # 调整帧数
 frame_num = 2000
+
+#
+animation_dpi = 150

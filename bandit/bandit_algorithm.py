@@ -17,9 +17,9 @@ class Exp4IX:
         self.delta = delta
         self.eta = math.sqrt(2 * (math.log(M) + math.log(k + 1) - math.log(delta)) / (n * k))
         self.gamma = self.eta / 2
-
         self.Q = np.ones(M) / M  # Initialize Q_1 as a uniform distribution over experts
         self.S = np.zeros(M)  # Initialize cumulative rewards S_0
+        self.Q_history = [self.Q.copy()]    # List to store history of Q values
 
     def get_probs(self, E_t):
         P_t = np.dot(E_t.T, self.Q)
@@ -33,7 +33,6 @@ class Exp4IX:
         return 0
 
     def update(self, uav, target, E_t):
-
         P_t = self.get_probs(E_t)
         A_t = uav.uav_orientation
 
@@ -45,3 +44,6 @@ class Exp4IX:
         self.S += tilde_Y_t
         self.Q = np.exp(-self.eta * self.S)
         self.Q /= np.sum(self.Q)
+
+        # Save the current Q values
+        self.Q_history.append(self.Q.copy())
