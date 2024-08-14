@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_q_weights(Q_histories, algorithms, output_file='experimental_pic\q_weights_comparison.jpg'):
+
+def plot_q_weights(Q_histories, algorithms, output_file='experimental_pic/q_weights_comparison.jpg'):
     plt.figure(figsize=(14, 10))
 
     # Define a color palette
@@ -22,7 +23,10 @@ def plot_q_weights(Q_histories, algorithms, output_file='experimental_pic\q_weig
     plt.xlabel('Rounds', fontsize=22, fontweight='bold')
     plt.ylabel('Q values', fontsize=22, fontweight='bold')
     plt.title('Q Weight Changes Over Rounds', fontsize=26, fontweight='bold')
-    plt.legend(fontsize=15, loc='upper left', frameon=True, shadow=True)
+
+    # Position the legend inside the plot area, on the right and centered vertically
+    plt.legend(fontsize=15, loc='center right', bbox_to_anchor=(1, 0.5), frameon=True, shadow=True)
+
     plt.grid(True, linestyle='--', alpha=0.7)
 
     # Set font size for tick labels on both axes
