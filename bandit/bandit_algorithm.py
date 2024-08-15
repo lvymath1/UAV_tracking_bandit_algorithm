@@ -3,14 +3,6 @@ import numpy as np
 
 class Exp4IX:
     def __init__(self, n, k, M, delta):
-        """
-        Initialize the Exp4-IX algorithm.
-
-        :param n: Number of rounds.
-        :param k: Number of actions.
-        :param M: Number of experts.
-        :param delta: Confidence parameter.
-        """
         self.n = n
         self.k = k
         self.M = M
