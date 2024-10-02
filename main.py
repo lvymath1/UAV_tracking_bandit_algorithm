@@ -1,4 +1,6 @@
 import numpy as np
+
+from algorithm.average_fusion import average_fusion
 from algorithm.particle_filter import ParticleFilter
 from algorithm.previous_position import previous_position
 from algorithm.trajectory_prediction import trajectory_prediction
@@ -20,6 +22,7 @@ def run_all_simulations(mode='Smooth Trajectory', generate_animation='on'):
         'Previous Position Algorithm',
         'Particle Filtering Algorithm',
         'Trajectory Fitting Algorithm',
+        'Average Fusion Algorithm',
         'Exp4-IX Algorithm'
     ]
     cumulative_distances = {algo: [] for algo in algorithms}
@@ -51,6 +54,12 @@ def run_all_simulations(mode='Smooth Trajectory', generate_animation='on'):
                 probs = pf.particle_filter(target, uav)
             elif algorithm == 'Trajectory Fitting Algorithm':
                 probs = trajectory_prediction(target, uav)
+            elif algorithm == 'Average Fusion Algorithm':
+                probs_previous = previous_position(target, uav)
+                probs_particle_filter = pf.particle_filter(target, uav)
+                probs_trajectory = trajectory_prediction(target, uav)
+                expert_advice = np.vstack((probs_previous, probs_particle_filter, probs_trajectory))
+                probs = average_fusion(expert_advice)
             elif algorithm == 'Exp4-IX Algorithm':
                 probs_previous = previous_position(target, uav)
                 probs_particle_filter = pf.particle_filter(target, uav)
@@ -90,8 +99,7 @@ run_all_simulations(mode='Smooth Trajectory', generate_animation='on')
 image_files = [
     'experimental_pic/final_frame_Smooth Trajectory_Previous Position Algorithm_setting.jpg',
     'experimental_pic/final_frame_Smooth Trajectory_Particle Filtering Algorithm_setting.jpg',
-    'experimental_pic/final_frame_Smooth Trajectory_Trajectory Fitting Algorithm_setting.jpg',
+    'experimental_pic/final_frame_Smooth Trajectory_Average Fusion Algorithm_setting.jpg',
     'experimental_pic/final_frame_Smooth Trajectory_Exp4-IX Algorithm_setting.jpg',
-    'experimental_pic/cumulative_distances.jpg'
 ]
 combine_images(image_files)

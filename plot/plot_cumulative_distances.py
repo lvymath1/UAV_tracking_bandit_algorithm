@@ -1,8 +1,8 @@
 from matplotlib import pyplot as plt
 
 def plot_cumulative_distances(cumulative_distances, output_file='experimental_pic/cumulative_distances.jpg', max_distance=8000):
-    plt.figure(figsize=(14, 10))
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+    plt.figure(figsize=(10, 10))
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 
     for i, (algo, distances) in enumerate(cumulative_distances.items()):
         # Filter distances to exclude values beyond max_distance

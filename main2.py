@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+from algorithm.average_fusion import average_fusion
 from algorithm.particle_filter import ParticleFilter
 from algorithm.previous_position import previous_position
 from algorithm.trajectory_prediction import trajectory_prediction
@@ -16,6 +18,7 @@ def run_single_experiment(mode='Smooth Trajectory'):
         'Previous Position Algorithm',
         'Particle Filtering Algorithm',
         'Trajectory Fitting Algorithm',
+        'Average Fusion Algorithm',
         'Exp4-IX Algorithm'
     ]
     cumulative_distances = {algo: [] for algo in algorithms}
@@ -45,6 +48,12 @@ def run_single_experiment(mode='Smooth Trajectory'):
                 probs = pf.particle_filter(target, uav)
             elif algorithm == 'Trajectory Fitting Algorithm':
                 probs = trajectory_prediction(target, uav)
+            elif algorithm == 'Average Fusion Algorithm':
+                probs_previous = previous_position(target, uav)
+                probs_particle_filter = pf.particle_filter(target, uav)
+                probs_trajectory = trajectory_prediction(target, uav)
+                expert_advice = np.vstack((probs_previous, probs_particle_filter, probs_trajectory))
+                probs = average_fusion(expert_advice)
             elif algorithm == 'Exp4-IX Algorithm':
                 probs_previous = previous_position(target, uav)
                 probs_particle_filter = pf.particle_filter(target, uav)
@@ -67,6 +76,7 @@ def run_monte_carlo_experiments(mode='tracking', num_experiments=50):
         'Previous Position Algorithm',
         'Particle Filtering Algorithm',
         'Trajectory Fitting Algorithm',
+        'Average Fusion Algorithm',
         'Exp4-IX Algorithm'
     ]
     all_distances = {algo: [] for algo in algorithms}
@@ -85,7 +95,7 @@ def run_monte_carlo_experiments(mode='tracking', num_experiments=50):
 
 def plot_avg_cumulative_distances(avg_distances, std_distances, output_file='experimental_pic/avg_cumulative_distances.jpg'):
     plt.figure(figsize=(14, 10))
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
 
     for i, algo in enumerate(avg_distances):
         avg = avg_distances[algo]
